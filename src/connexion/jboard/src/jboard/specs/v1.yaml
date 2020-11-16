@@ -1,0 +1,186 @@
+openapi: 3.0.0
+tags:
+  - name: list
+  - name: retrieve
+info:
+  title: Jobs Board Backend
+  version: '1'
+  contact: {}
+  description: Flask Connexion framework
+servers:
+  - url: /api/v1
+    description: default
+paths:
+  /positions:
+    get:
+      description: Search for jobs by `description` and `location`. Only 50 items are returned at a time.
+      summary: Your GET endpoint
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                description: ''
+                items:
+                  type: object
+                  additionalProperties: false
+                  properties:
+                    id:
+                      type: string
+                    type:
+                      type: string
+                    created_at:
+                      type: string
+                    company:
+                      type: string
+                    location:
+                      type: string
+                    title:
+                      type: string
+                  required:
+                    - id
+                    - type
+                    - created_at
+                    - company
+                    - location
+                    - title
+              examples:
+                example-1:
+                  value:
+                    - id: f9945a57-0454-4543-9db1-2e577ab81e64
+                      type: Full Time
+                      created_at: 'Mon Nov 02 20:38:19 UTC 2020'
+                      company: LodestoneCo.com
+                      location: Menlo Park
+                      title: Experienced Software Engineer
+                    - id: 0fe7eecd-84c0-4759-bb33-bfa98d44c183
+                      type: Full Time
+                      created_at: 'Fri Oct 30 03:44:08 UTC 2020'
+                      company: Akta
+                      location: 'San Francisco, USA'
+                      title: Software Engineer (Remote)
+                    - id: f58bb82b-44e3-4d0c-8e4e-3454aa2436ff
+                      type: Full Time
+                      created_at: 'Fri Oct 16 19:11:53 UTC 2020'
+                      company: Axiad
+                      location: San Jose
+                      title: Lead Software Engineer
+          headers: {}
+      operationId: ''
+      tags:
+        - list
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - Go
+              - Java
+              - Javascript
+              - Python
+              - React
+              - Ruby
+          in: query
+          name: description
+          description: ''
+          required: true
+        - schema:
+            type: string
+            enum:
+              - Beijing
+              - Chicago
+              - London
+              - Paris
+              - Phoenix
+              - San Francisco
+          in: query
+          name: location
+          required: true
+        - schema:
+            type: integer
+            minimum: 1
+            default: 1
+          in: query
+          name: page
+    parameters: []
+  '/positions/{id}':
+    parameters:
+      - schema:
+          type: string
+        name: id
+        in: path
+        required: true
+    get:
+      summary: Your GET endpoint
+      tags:
+        - retrieve
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                description: ''
+                type: object
+                properties:
+                  id:
+                    type: string
+                  type:
+                    type: string
+                  created_at:
+                    type: string
+                  company:
+                    type: string
+                  company_url:
+                    type: string
+                  location:
+                    type: string
+                  title:
+                    type: string
+                  description:
+                    type: string
+                  how_to_apply:
+                    type: string
+                  company_logo:
+                    type: string
+                    nullable: true
+                required:
+                  - id
+                  - type
+                  - created_at
+                  - company
+                  - company_url
+                  - location
+                  - title
+                  - description
+                  - how_to_apply
+                  - company_logo
+              examples:
+                sample:
+                  value:
+                    id: f9945a57-0454-4543-9db1-2e577ab81e64
+                    type: Full Time
+                    created_at: 'Mon Nov 02 20:38:19 UTC 2020'
+                    company: LodestoneCo.com
+                    company_url: 'http://Lodestone'
+                    location: Menlo Park
+                    title: Experienced Software Engineer
+                    description: |-
+                      <p>COMPANY OVERVIEW</p>
+                      <p>Lodestone is looking...</p>
+                    how_to_apply: Email your resume to me at peta.roberts@lodestoneco.com
+                    company_logo: 'https://jobs.github.com/rails/active_storage/blobs/eyJfcmFpbHMiOnsi/Best_LS_Logo.png'
+      operationId: ''
+      description: Retrieve a single job posting.
+      parameters:
+        - schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          in: query
+          name: md
+components:
+  schemas: {}
+  securitySchemes: {}
