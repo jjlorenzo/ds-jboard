@@ -1,0 +1,31 @@
+[tool.poetry]
+name        = "jboard"
+version     = "0.1.0"
+readme      = "README.md"
+description = "Jobs Board (Django Rest Framework) Backend"
+authors     = ["jjlorenzo <jjlorenzo@users.noreply.github.com>"]
+classifiers = ["Private :: DoneStreet"]
+exclude     = ["**/__pycache__", "**/.DS_Store"]
+
+[tool.poetry.dependencies]
+django = "^3.1.2"
+djangorestframework = "^3.12.1"
+psycopg2 = "^2.8.6"
+python = "^3.8"
+uplink = "^0.9.2"
+
+[tool.poetry.dev-dependencies]
+ipdb = "^0.13.4"
+isort = "^5.6.4"
+poetry-version = "^0.1.5"
+pytest = "^5.2"
+
+[tool.poetry.scripts]
+jboard = "jboard:entry_point"
+
+[tool.isort]
+force_single_line = true
+
+[build-system]
+build-backend = "poetry.core.masonry.api"
+requires = ["poetry-core>=1.0.0"]
