@@ -1,0 +1,98 @@
+#!/usr/bin/env crun
+
+require "option_parser"
+
+init_databases = [] of String
+log_connections = "off"
+log_statement = "none"
+
+OptionParser.parse ARGV.clone do |parser|
+  parser.on "--log-connections", "Log connections to the server" do
+    log_connections = "on"
+  end
+  parser.on "--log-statement-all", "Log all SQL statements" do
+    log_statement = "all"
+  end
+  parser.on "-h", "show help" do
+    puts parser
+    exit 0
+  end
+  parser.unknown_args do |before_dash, after_dash|
+    init_databases += after_dash
+  end
+  parser.invalid_option do |flag|
+    STDERR.puts parser
+    exit 1
+  end
+end
+
+lib LibC
+  fun setgid(gid : GidT) : Int
+  fun setuid(uid : UidT) : Int
+end
+
+unless Dir.exists? "/run/postgres"
+  Process.run "install", %w(-o65534 -m0700 -d /run/postgres)
+end
+
+LibC.setgid 65534
+LibC.setuid 65534
+
+unless Dir.exists? "/run/postgres/PG_VERSION"
+  Process.run "/usr/bin/initdb", %w(--auth=trust --pgdata=/run/postgres --username=postgres)
+
+  File.write "/run/postgres/pg_hba.conf", String.build { |file|
+    networks = Process.run "ip", %w(-f inet -o addr show) do |proc|
+      regex = /^\d+:\s+(?<name>\w+)\s+inet\s+(?<inet>[\d\.\/]+).+$/
+      proc.output.gets_to_end.each_line.compact_map { |line|
+        regex.match(line).try &.named_captures
+      }
+    end
+    file.puts "local all all trust"
+    networks.each do |network|
+      file.puts "host all all #{network["inet"]} trust ##{network["name"]}"
+    end
+  }
+
+  File.write "/run/postgres/postgresql.conf", <<-EOS
+    datestyle = 'iso, mdy'
+    debug_pretty_print = on
+    default_text_search_config = 'pg_catalog.english'
+    dynamic_shared_memory_type = posix
+    lc_messages = 'en_US.UTF-8'
+    lc_monetary = 'en_US.UTF-8'
+    lc_numeric = 'en_US.UTF-8'
+    lc_time = 'en_US.UTF-8'
+    listen_addresses = '0.0.0.0'
+    log_connections = #{log_connections}
+    log_destination = 'stderr'
+    log_line_prefix = ''
+    log_statement = '#{log_statement}'
+    log_timezone = 'UTC'
+    max_connections = 100
+    max_wal_size = 1GB
+    min_wal_size = 80MB
+    port = 5432
+    shared_buffers = 128MB
+    timezone = 'UTC'
+  EOS
+end
+
+unless init_databases.empty?
+  proc = Process.new "/usr/bin/postgres", %w(-D /run/postgres)
+  begin
+    sleep 0.1
+    until Process.run("/usr/bin/pg_isready").success?
+      sleep 0.1
+    end
+    init_databases.each do |dbname|
+      Process.run "/usr/bin/dropdb", ["--if-exists", "-Upostgres", dbname]
+      Process.run "/usr/bin/createdb", ["--template=template0", "-Upostgres", dbname]
+    end
+  ensure
+    proc.terminate
+    proc.wait
+  end
+end
+
+Process.exec "/usr/bin/postgres", %w(-D /run/postgres)

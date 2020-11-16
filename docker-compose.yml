@@ -1,0 +1,93 @@
+networks:
+  default:
+    ipam:
+      config:
+        - subnet: 192.168.10.0/24
+    name: jboard
+
+services:
+  postgres:
+    command: postgres-server.crun
+    depends_on: []
+    environment: []
+    hostname: jboard-postgres
+    image: dstreet/jboard
+    ports: ["7432:5432"]
+    volumes:
+      - post-data:/run:rw
+    working_dir: /
+  # 8100 -> TODO amber backend
+  bck-conn:
+    command: wait-for-them-all -s postgres:5432 -- poetry run jboard --prod server
+    depends_on:
+      - postgres
+    environment:
+      - FLASK_APP=jboard
+    hostname: jboard-conn
+    image: dstreet/jboard
+    ports: ["8200:8000"]
+    volumes:
+      - conn-root:/root:rw
+      - conn-venv:/src/connexion/jboard/.venv:rw
+      - ./src/connexion:/src/connexion
+    working_dir: /src/connexion/jboard
+  bck-djrf:
+    command: wait-for-them-all -s postgres:5432 -- poetry run jboard --prod server
+    depends_on:
+      - postgres
+    environment:
+      - DJANGO_SETTINGS_MODULE=jboard.settings
+    hostname: jboard-djrf
+    image: dstreet/jboard
+    ports: ["8300:8000"]
+    volumes:
+      - djrf-root:/root:rw
+      - djrf-venv:/src/djrf/jboard/.venv:rw
+      - ./src/djrf:/src/djrf
+    working_dir: /src/djrf/jboard
+  # 8400 -> TODO loopback backend
+  # 8500 -> TODO lucky backend
+  # 8600 -> TODO sails backend
+  # 9100 -> TODO vuetify frontend
+  frn-vaui:
+    command: wait-for-them-all bck-conn:8000 bck-djrf:8000 -- yarn serve
+    depends_on:
+      - bck-conn
+      - bck-djrf
+    environment:
+      - VITE_HMR_PORT=9200
+    hostname: jboard-vaui
+    image: dstreet/jboard
+    ports: ["9200:8000"]
+    volumes:
+      - vaui-root:/root:rw
+      - vaui-dist:/src/vaui/jboard/dist:rw
+      - vaui-node:/src/vaui/jboard/node_modules:rw
+      - ./src/vaui:/src/vaui
+    working_dir: /src/vaui/jboard
+  # 9300 -> TODO svelte frontend
+  # 9400 -> TODO quasar frontend
+  # 9500 -> TODO prime-vue frontend
+  # 9600 -> TODO bootstrap-vue frontend
+  # 9700 -> TODO atlaskit frontend
+  # 9800 -> TODO angular-material frontend
+
+volumes:
+  conn-root:
+    name: jboard-conn-root
+  conn-venv:
+    name: jboard-conn-venv
+  djrf-root:
+    name: jboard-djrf-root
+  djrf-venv:
+    name: jboard-djrf-venv
+  post-data:
+    name: jboard-post-data
+  vaui-dist:
+    name: jboard-vaui-dist
+  vaui-node:
+    name: jboard-vaui-node
+  vaui-root:
+    name: jboard-vaui-root
+
+version: "3.8"

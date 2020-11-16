@@ -1,0 +1,13 @@
+services:
+  postgres:
+    command: postgres-server.crun --log-connections --log-statement-all
+  bck-conn:
+    command: wait-for-them-all postgres:5432 -- poetry run jboard server
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+  bck-djrf:
+    command: wait-for-them-all postgres:5432 -- poetry run jboard server
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+  frn-vaui:
+    command: wait-for-them-all bck-conn:8000 bck-djrf:8000 -- yarn start

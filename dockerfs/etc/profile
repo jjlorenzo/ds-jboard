@@ -1,0 +1,10 @@
+# shellcheck disable=SC2016
+
+umask 022
+
+export STARSHIP_CONFIG=/etc/starship.toml
+export STARSHIP_PROMPT='$(starship prompt --status=$?)'
+export STARSHIP_SHELL="sh"
+
+export PS1="${STARSHIP_PROMPT}"
+export TERM=xterm-256color

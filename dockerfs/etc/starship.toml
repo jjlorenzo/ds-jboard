@@ -1,0 +1,92 @@
+add_newline = false
+scan_timeout = 10
+
+[aws]
+  disabled = true
+[battery]
+  disabled = true
+[character]
+  disabled = false
+  use_symbol_for_status = true
+[cmd_duration]
+  disabled = true
+[conda]
+  disabled = true
+[crystal]
+  disabled = false
+[custom]
+  disabled = false
+[directory]
+  disabled = false
+  truncate_to_repo = false
+[docker_context]
+  disabled = false
+[dotnet]
+  disabled = true
+[elixir]
+  disabled = true
+[elm]
+  disabled = true
+[env_var]
+  disabled = true
+[erlang]
+  disabled = true
+[git_branch]
+  disabled = false
+[git_commit]
+  disabled = false
+[git_state]
+  disabled = false
+[git_status]
+  disabled = false
+[golang]
+  disabled = true
+[hg_branch]
+  disabled = true
+[hostname]
+  disabled = false
+  ssh_only = false
+  trim_at = ""
+[java]
+  disabled = true
+[jobs]
+  disabled = true
+[julia]
+  disabled = true
+[kubernetes]
+  disabled = false
+[line_break]
+  disabled = false
+[memory_usage]
+  disabled = true
+[nim]
+  disabled = true
+[nix_shell]
+  disabled = true
+[nodejs]
+  disabled = false
+[ocaml]
+  disabled = true
+[package]
+  disabled = true
+[php]
+  disabled = true
+[purescript]
+  disabled = true
+[python]
+  disabled = false
+[ruby]
+  disabled = true
+[rust]
+  disabled = false
+[singularity]
+  disabled = true
+[terraform]
+  disabled = true
+[time]
+  disabled = true
+[username]
+  disabled = false
+  show_always = true
+[zig]
+  disabled = true
